@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       					   http://www.springframework.org/schema/beans/spring-beans.xsd">
+<!--
+1.创建数据源
+-->
+<bean id="dataSourceId"  class="com.mchange.v2.c3p0.ComboPooledDataSource">
+<property name="driverClass" value="com.mysql.jdbc.Driver"></property>
+<property name="jdbcUrl" value="jdbc:mysql://localhost:3306/springdb"></property>
+    <property name="user" value="root"></property>
+    <property name="password" value="root@123"></property>
+</bean>
+    <!--创建dao-->
+    <bean id="accountDaoId" class="com.ccpg.transaction2.dao.AccountDaoImpl">
+        <property name="dataSource" ref="dataSourceId"></property>
+    </bean>
+<!--创建服务-->
+<bean id="accountServiceId" class="com.ccpg.transaction2.service.AccountServiceImpl">
+    <property name="accountDao" ref="accountDaoId"></property>
+    <property name="transactionTemplate" ref="transactionTemplate"></property>
+</bean>
+    <!--创建模板-->
+    <bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+        <property name="transactionManager" ref="transactionManager"></property>
+    </bean>
+    <!-- 5 配置事务管理器 ,管理器需要事务，事务从Connection获得，连接从连接池DataSource获得 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSourceId"></property>
+    </bean>
+</beans>

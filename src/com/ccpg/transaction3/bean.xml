@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       					   http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+
+    <!-- 1 datasource -->
+    <bean id="dataSourceId" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="com.mysql.jdbc.Driver"></property>
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/springdb"></property>
+        <property name="user" value="root"></property>
+        <property name="password" value="root@123"></property>
+    </bean>
+
+    <!-- 2 dao  -->
+    <bean id="accountDao" class="com.ccpg.transaction3.dao.AccountDaoImpl">
+        <property name="dataSource" ref="dataSourceId"></property>
+    </bean>
+    <!-- 3 service -->
+    <bean id="accountService" class="com.ccpg.transaction3.service.AccountServiceImpl">
+        <property name="accountDao" ref="accountDao"></property>
+    </bean>
+
+    <bean id="proxyId" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="proxyInterfaces" value="com.ccpg.transaction3.service.AccountService"></property>
+        <property name="target" ref="accountService"></property>
+        <property name="transactionManager" ref="transactionManager"></property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="transfer">PROPAGATION_REQUIRED,ISOLATION_DEFAULT</prop>
+            </props>
+        </property>
+    </bean>
+
+
+    <!-- 5 配置事务管理器 ,管理器需要事务，事务从Connection获得，连接从连接池DataSource获得 -->
+    <bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSourceId"></property>
+    </bean>
+</beans>
